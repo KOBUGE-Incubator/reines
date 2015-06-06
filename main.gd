@@ -53,10 +53,11 @@ func _connect_pressed():
 	cst.put_var(["nick", get_node("LineEdit_nick").get_text()])
 
 func _send_pressed():
-	if get_node("LineEdit_text").get_text().length() > 0:
-		upd_chat()
-		cst.put_var(["chat", get_node("LineEdit_text").get_text()])
-		get_node("LineEdit_text").clear()
+	var n = get_node("LineEdit_text")
+	var msg = n.get_text()
+	if msg.length() > 0:
+		cst.put_var(["chat", msg])
+		n.clear()
 
 
 func _on_LineEdit_text_enter_pressed(text):
