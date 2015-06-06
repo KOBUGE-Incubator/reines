@@ -5,6 +5,7 @@ extends SceneTree
 
 var srv = TCP_Server.new()
 var csts = []
+var nicks = []
 var cst_mt = Mutex.new()
 
 func add_cst(cst):
@@ -17,6 +18,30 @@ func rem_cst(cst):
 	var idx = csts.find(cst)
 	if (idx >= 0):
 		csts.remove(idx)
+	cst_mt.unlock()
+
+func add_nick(nick):
+	cst_mt.lock()
+	nicks.push_back(nick)
+	cst_mt.unlock()
+
+func rem_nick(nick):
+	cst_mt.lock()
+	var idx = nick.find(nick)
+	if (idx >= 0):
+		nicks.remove(idx)
+	cst_mt.unlock()
+
+func nick_exists(nick):
+	cst_mt.lock()
+	var idx = nicks.find(nick)
+	var ret = (idx >= 0)
+	cst_mt.unlock()
+	return ret
+
+func send_nicks(cst):
+	cst_mt.lock()
+	cst.put_var(["nicks", nicks])
 	cst_mt.unlock()
 
 func send_to_all(content):
@@ -42,9 +67,10 @@ func run_thrd(params):
 	var cst = PacketPeerStream.new()
 	cst.set_stream_peer(con)
 	add_cst(cst)
+	send_nicks(cst)
 	var first = true
 	var nick = "Guest_" + str(randi() % 999)
-	# TODO think of message to send to user "sorry you sent no nick, or your nick was invalid, your nick is now: ABC"
+
 
 	var closecon
 	while (con.is_connected()):
@@ -58,20 +84,26 @@ func run_thrd(params):
 			if (m == "chat"):
 				send_to_all(["chat", nick, v[1]])
 			elif (m == "nick"):
-				if (first):
-					nick = v[1]
-				else:
-					var newnick = v[1]
-					send_to_all(["nick", nick, newnick])
+				var newnick = v[1]
+				if ((!nick_exists(newnick)) and nick_is_valid(newnick)):
+					if (not first):
+						send_to_all(["nick", nick, newnick])
+					rem_nick(nick)
 					nick = newnick
+					add_nick(nick)
+				else:
+					if (first):
+						# TODO think of message to send to user "sorry you sent no nick, or your nick was invalid, your nick is now: ABC"
 			else:
 				print(str("client sent unsupported msg '", m, "'!"))
 				pass
 		if (first):
 			first = false
+			add_nick(nick)
 			send_to_all(["join", nick])
 
 	rem_cst(cst)
+	rem_nick(nick)
 	send_to_all(["part", nick])
 	con.disconnect()
 
