@@ -21,7 +21,7 @@ func rem_cst(cst):
 
 func send_to_all(content):
 	cst_mt.lock()
-	print(str("send to all", content))
+	print(str("send: ", content))
 	for cst in csts:
 		# TODO add connected check here, we might get a msg from sb right after one closed connection, and before the cst got removed
 		cst.put_var(content)
