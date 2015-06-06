@@ -57,3 +57,7 @@ func _send_pressed():
 		upd_chat()
 		cst.put_var(["chat", get_node("LineEdit_text").get_text()])
 		get_node("LineEdit_text").clear()
+
+
+func _on_LineEdit_text_enter_pressed(text):
+	_send_pressed()
