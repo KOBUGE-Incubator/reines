@@ -17,7 +17,7 @@ func _ready():
 
 func add_to_log(s):
 	# TODO @alket connect this to gui, not console output
-	print(s)
+	get_node("TextEdit_chat").set_text(get_node("TextEdit_chat").get_text()+s+"\n")
 
 func parse_var(v):
 	if ((typeof(v) == TYPE_ARRAY) and (v.size() >= 2)):
@@ -53,5 +53,7 @@ func _connect_pressed():
 	cst.put_var(["nick", get_node("LineEdit_nick").get_text()])
 
 func _send_pressed():
-	upd_chat()
-	cst.put_var(["chat", get_node("LineEdit_text").get_text()])
+	if get_node("LineEdit_text").get_text().length() > 0:
+		upd_chat()
+		cst.put_var(["chat", get_node("LineEdit_text").get_text()])
+		get_node("LineEdit_text").clear()
