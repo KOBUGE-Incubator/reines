@@ -4,11 +4,14 @@ extends Control
 var con
 var connected = false
 var cst
+var pollthread
 # member variables here, example:
 # var a=2
 # var b="textvar"
 
 func _ready():
+	pollthread = Thread.new()
+	pollthread.start(self, "poll_thr", self)
 	# Initialization here
 	pass
 
@@ -35,6 +38,10 @@ func upd_chat():
 		if (cst.get_available_packet_count() > 0):
 			parse_var(cst.get_var())
 
+func poll_thr(v):
+	while (true):
+		v.call_deferred("upd_chat")
+		OS.delay_msec(100)
 
 func _connect_pressed():
 	con = StreamPeerTCP.new()
@@ -48,4 +55,3 @@ func _connect_pressed():
 func _send_pressed():
 	upd_chat()
 	cst.put_var(["chat", get_node("LineEdit_text").get_text()])
-	upd_chat()
