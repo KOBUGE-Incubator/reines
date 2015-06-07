@@ -4,6 +4,7 @@ extends Control
 var con
 var connected = false
 var cst
+var nick_list = []
 var pollthread
 
 func _ready():
@@ -15,6 +16,11 @@ func _ready():
 func add_to_log(s):
 	get_node("ItemList_chat").add_item(s)
 
+func upd_nicks_list():
+	var nl = get_node("ItemList_users")
+	for n in nick_list:
+		nl.add_item(n)
+
 func parse_var(v):
 	if ((typeof(v) == TYPE_ARRAY) and (v.size() >= 2)):
 		var m = v[0]
@@ -24,17 +30,24 @@ func parse_var(v):
 		elif (m == "nick"):
 			if (v.size() >= 3):
 				add_to_log(str("*** ", v[1], " is now called ", v[2]))
+				var idx = nick_list.find(v[1])
+				nick_list[idx] = v[2]
+				upd_nicks_list()
 				# todo update userlist tree too
 				#var it = ul.create_item()
 				#it.set_text(n)
 		elif (m == "nicks"):
-			var nicks = v[1]
-			for n in nicks:
-				get_node("ItemList_users").add_item(n)
+			nick_list = v[1]
+			upd_nicks_list()
 		elif (m == "join"):
 			add_to_log(str("*** ", v[1], " joined the lobby"))
+			nick_list.push_back(v[1])
+			upd_nicks_list()
 		elif (m == "part"):
 			add_to_log(str("*** ", v[1], " left the lobby"))
+			var idx = nick_list.find(v[1])
+			nick_list.erase(idx)
+			upd_nicks_list()
 
 func upd_chat():
 	if (connected):
@@ -54,8 +67,6 @@ func _connect_pressed():
 	cst = PacketPeerStream.new()
 	cst.set_stream_peer(con)
 	cst.put_var(["nick", get_node("LineEdit_nick").get_text()])
-	get_node("ItemList_users").add_item(get_node("LineEdit_nick").get_text())
-	
 
 func _send_pressed():
 	var n = get_node("LineEdit_text")
