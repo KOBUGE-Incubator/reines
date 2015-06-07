@@ -13,7 +13,7 @@ func _ready():
 	pass
 
 func add_to_log(s):
-	get_node("TextEdit_chat").set_text(get_node("TextEdit_chat").get_text()+s+"\n")
+	get_node("ItemList_chat").add_item(s)
 
 func parse_var(v):
 	if ((typeof(v) == TYPE_ARRAY) and (v.size() >= 2)):
@@ -24,17 +24,13 @@ func parse_var(v):
 		elif (m == "nick"):
 			if (v.size() >= 3):
 				add_to_log(str("*** ", v[1], " is now called ", v[2]))
-				var ul = get_node("Tree_userlist")
 				# todo update userlist tree too
 				#var it = ul.create_item()
 				#it.set_text(n)
 		elif (m == "nicks"):
 			var nicks = v[1]
-			var ul = get_node("Tree_userlist")
-			ul.clear()
 			for n in nicks:
-				var it = ul.create_item()
-				it.set_text(0, n)
+				get_node("ItemList_users").add_item(n)
 		elif (m == "join"):
 			add_to_log(str("*** ", v[1], " joined the lobby"))
 		elif (m == "part"):
@@ -58,6 +54,8 @@ func _connect_pressed():
 	cst = PacketPeerStream.new()
 	cst.set_stream_peer(con)
 	cst.put_var(["nick", get_node("LineEdit_nick").get_text()])
+	get_node("ItemList_users").add_item(get_node("LineEdit_nick").get_text())
+	
 
 func _send_pressed():
 	var n = get_node("LineEdit_text")
