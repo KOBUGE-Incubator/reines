@@ -44,7 +44,7 @@ func parse_var(v):
 		elif (m == "part"):
 			add_to_log(str("*** ", v[1], " left the lobby"))
 			var idx = nick_list.find(v[1])
-			nick_list.erase(idx)
+			nick_list.remove(idx)
 			upd_nicks_list()
 
 func upd_chat():
