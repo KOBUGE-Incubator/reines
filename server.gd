@@ -99,7 +99,7 @@ func run_thrd(params):
 				send_to_all(["chat", nick, v[1]])
 			elif (m == "nick"):
 				var newnick = v[1]
-				if ((!nick_exists(newnick)) and nick_is_valid(newnick)):
+				if !(nick_exists(newnick) and nick_is_valid(newnick)):
 					if (not first):
 						send_to_all(["nick", nick, newnick])
 					rem_nick(nick)
