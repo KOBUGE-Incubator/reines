@@ -68,7 +68,7 @@ func nick_is_valid(nick):
 	var nl = nick.length()
 	for i in range(nl):
 		var c = nick[i]
-		if (not((("a" < c) and (c < "z")) or (("A" < c) and (c < "Z")) or (("0" < c) and (c < "9")))):
+		if (not((("a" < c) and (c < "z")) or (("A" < c) and (c < "Z")) or (("0" < c) and (c < "9")) or (c == "_"))):
 			return false
 	return true
 
