@@ -65,8 +65,10 @@ func send_to_all(content):
 	cst_mt.unlock()
 
 func nick_is_valid(nick):
-	for c in nick:
-		if (not(("a" < c < "z") or ("A" < c < "Z") or ("0" < c < "9"))):
+	var nl = nick.length()
+	for i in range(nl):
+		var c = nick[i]
+		if (not((("a" < c) and (c < "z")) or (("A" < c) and (c < "Z")) or (("0" < c) and (c < "9")))):
 			return false
 	return true
 
