@@ -18,6 +18,7 @@ func add_to_log(s):
 
 func upd_nicks_list():
 	var nl = get_node("ItemList_users")
+	nl.clear()
 	for n in nick_list:
 		nl.add_item(n)
 
@@ -33,9 +34,6 @@ func parse_var(v):
 				var idx = nick_list.find(v[1])
 				nick_list[idx] = v[2]
 				upd_nicks_list()
-				# todo update userlist tree too
-				#var it = ul.create_item()
-				#it.set_text(n)
 		elif (m == "nicks"):
 			nick_list = v[1]
 			upd_nicks_list()
