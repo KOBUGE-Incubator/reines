@@ -27,9 +27,21 @@ func add_nick(nick):
 
 func rem_nick(nick):
 	cst_mt.lock()
-	var idx = nick.find(nick)
+	var idx = nicks.find(nick)
 	if (idx >= 0):
 		nicks.remove(idx)
+	cst_mt.unlock()
+
+func print_nicks():
+	cst_mt.lock()
+	var r = ""
+	var first = true
+	for nick in nicks:
+		if (first):
+			r = nick
+		else:
+			r = str(r, ", ", nick)
+	print(str("nicks online: ", r))
 	cst_mt.unlock()
 
 func nick_exists(nick):
@@ -100,10 +112,12 @@ func run_thrd(params):
 		if (first):
 			first = false
 			add_nick(nick)
+			print_nicks()
 			send_to_all(["join", nick])
 
 	rem_cst(cst)
 	rem_nick(nick)
+	print_nicks()
 	send_to_all(["part", nick])
 	con.disconnect()
 
