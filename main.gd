@@ -5,9 +5,6 @@ var con
 var connected = false
 var cst
 var pollthread
-# member variables here, example:
-# var a=2
-# var b="textvar"
 
 func _ready():
 	pollthread = Thread.new()
@@ -16,7 +13,6 @@ func _ready():
 	pass
 
 func add_to_log(s):
-	# TODO @alket connect this to gui, not console output
 	get_node("TextEdit_chat").set_text(get_node("TextEdit_chat").get_text()+s+"\n")
 
 func parse_var(v):
@@ -28,6 +24,17 @@ func parse_var(v):
 		elif (m == "nick"):
 			if (v.size() >= 3):
 				add_to_log(str("*** ", v[1], " is now called ", v[2]))
+				var ul = get_node("Tree_userlist")
+				# todo update userlist tree too
+				#var it = ul.create_item()
+				#it.set_text(n)
+		elif (m == "nicks"):
+			var nicks = v[1]
+			var ul = get_node("Tree_userlist")
+			ul.clear()
+			for n in nicks:
+				var it = ul.create_item()
+				it.set_text(0, n)
 		elif (m == "join"):
 			add_to_log(str("*** ", v[1], " joined the lobby"))
 		elif (m == "part"):
