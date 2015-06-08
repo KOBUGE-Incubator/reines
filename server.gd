@@ -72,6 +72,9 @@ func nick_is_valid(nick):
 			return false
 	return true
 
+func ping_ok(ctr):
+	return ctr < 120000
+
 func run_thrd(params):
 	var con = params.con
 	#if (con.is_connected()):
@@ -84,12 +87,24 @@ func run_thrd(params):
 	send_nicks(cst)
 	var first = true
 	var nick = "Guest_" + str(randi() % 999)
+	var last_ping_ctr = 0
+	var ping_sent = false
+	var timeout = false
 
 
 	var closecon
 	while (con.is_connected()):
-		while (cst.get_available_packet_count() == 0 and con.is_connected()): # TODO replace this with actual blocking
+		while (cst.get_available_packet_count() == 0 and con.is_connected() and last_ping_ctr < 1200): # TODO replace this with actual blocking
+			last_ping_ctr = last_ping_ctr + 1
 			OS.delay_msec(100)
+		if (last_ping_ctr >= 1000 and !ping_sent):
+			ping_sent = true
+			cst_mt.lock()
+			cst.put_var(["ping", ""])
+			cst_mt.unlock()
+		if (last_ping_ctr >= 1200):
+			timeout = true
+			break
 		if (not con.is_connected()):
 			break
 		var v = cst.get_var()
@@ -108,6 +123,9 @@ func run_thrd(params):
 				else:
 					if (first):
 						# TODO think of message to send to user "sorry you sent no nick, or your nick was invalid, your nick is now: ABC"
+			elif (m == "pong"):
+				last_ping_ctr = 0
+				ping_sent = false
 			else:
 				print(str("client sent unsupported msg '", m, "'!"))
 				pass
@@ -120,8 +138,13 @@ func run_thrd(params):
 	rem_cst(cst)
 	rem_nick(nick)
 	print_nicks()
-	send_to_all(["part", nick])
+	if (!timeout):
+		send_to_all(["part", nick])
+	else:
+		send_to_all(["timeout", nick])
+	cst_mt.lock()
 	con.disconnect()
+	cst_mt.unlock()
 
 	# hack to free the thread reference after it has exited
 	# godot has no native protection here, and can

@@ -41,11 +41,16 @@ func parse_var(v):
 			add_to_log(str("*** ", v[1], " joined the lobby"))
 			nick_list.push_back(v[1])
 			upd_nicks_list()
-		elif (m == "part"):
-			add_to_log(str("*** ", v[1], " left the lobby"))
+		elif (m == "part" or m == "timeout"):
+			var ta = ""
+			if (m == "timeout"):
+				ta = " (timed out)"
+			add_to_log(str("*** ", v[1], " left the lobby", ta))
 			var idx = nick_list.find(v[1])
 			nick_list.remove(idx)
 			upd_nicks_list()
+		elif (m == "ping"):
+			cst.put_var(["pong"])
 
 func upd_chat():
 	if (connected):
